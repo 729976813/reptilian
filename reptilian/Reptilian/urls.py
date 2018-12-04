@@ -21,6 +21,7 @@ from django.views.generic import TemplateView
 from reptilian.Reptilian import views
 
 urlpatterns = [
+
     path('admin/', admin.site.urls),
     url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
     url(r'^company/', include('reptilian.Reptilian.get_information.urls')),
