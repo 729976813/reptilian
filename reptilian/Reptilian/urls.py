@@ -29,4 +29,5 @@ urlpatterns = [
     url(r'^industry/', include('reptilian.Reptilian.get_information.urls')),
     url(r'^analysis/', TemplateView.as_view(template_name='companyanalysis.html'), name='analysis'),
     url(r'^find/', include('reptilian.Reptilian.get_information.urls'), name='find'),
+    
 ]
