@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/index.css">
+{% endblock %}
+
+{% block content %}
+    <div id="summary" class="project-summary">
+        {% verbatim summary%}
+            <el-container>
+                <el-header>上市公司财务信息收集</el-header>
+                <el-main>系统介绍</el-main>
+            </el-container>
+        {% endverbatim summary%}
+    </div>
+<script>
+new Vue({
+    el:'#summary',
+    data:function () {
+
+    }
+})
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div id="computer" style="width: 1600px; height: 800px;"></div>
+    <script>
+        Vue.prototype.$echarts = echarts;
+        new Vue({
+            el: '#computer',
+            data: function () {
+                return {
+                    industry_name: [],
+                    industry_price: [],
+                }
+            },
+            methods: {
+                fetchAreaData: function () {
+                    const self = this;
+                    axios.get('/industry/data2/', {
+                        params: {
+                            content: '计算机应用'
+                        }
+                    }).then(function (reponse) {
+                        var arr1 = new Array();
+                        var arr2 = new Array();
+                        for (let i = 0; i < reponse.data.length; i++) {
+                            arr1.push(reponse.data[i]['name']);
+                            arr2.push(reponse.data[i]['current_price']);
+                        }
+                        self.industry_name = arr1;
+                        self.industry_price = arr2;
+                        let Chart = self.$echarts.init(document.getElementById('computer'));
+                        Chart.hideLoading();
+                        Chart.setOption({
+                            xAxis: {
+                                data: self.industry_name
+                            },
+                            series: [{
+                                name: '现价',
+                                type: 'bar',
+                                itemStyle: {
+                                    normal: {
+                                        color: '#2c0cff'
+                                    }
+                                },
+                                data: self.industry_price
+                            }]
+                        })
+                    }).catch(function (err) {
+                        console.log(err);
+                        this.$message.error('操作失败:' + err)
+                    })
+                },
+                createDirgam: function () {
+                    // 基于准备好的dom，初始化echarts实例
+                    let myChart = this.$echarts.init(document.getElementById('computer'));
+                    // 指定图表的配置项和数据
+                    let option = {
+                        title: {
+                            text: '计算机各公司股票现价'
+                        },
+                         tooltip: {
+                            trigger:'axis'
+                        },
+                        legend: {
+                            data: ['现价'],
+                        },
+                        xAxis: {
+                            type:'category',
+                            data: []
+                        },
+                        calculable:true,
+                        yAxis: {
+                            type:'value'
+                        },
+                        series: [{
+                            name: '现价',
+                            type: 'bar',
+                            itemStyle: {
+                                normal: {
+                                    color: '#ff033e'
+                                }
+                            },
+                            markPoint:{
+                                data:[
+                                    {type:'max',name:'最大值'},
+                                    {type:'min',name:'最小值'}
+                                ]
+                            },
+                            markLine:{
+                                data:[
+                                    {type:'average',name:'平均值' }
+                                ]
+                            },
+                            data: []
+                        }]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                    myChart.showLoading();
+                }
+            },
+            created: function () {
+                this.fetchAreaData();
+                console.log(this.area_data);
+            },
+            mounted: function () {
+                this.createDirgam();
+            }
+        });
+    </script>
+
+
+{% endblock %}

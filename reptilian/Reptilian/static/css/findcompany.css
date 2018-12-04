@@ -1,0 +1,38 @@
+.company {
+    background-color: #B3C0D1;
+    height: 100%;
+    width: 100%;
+}
+
+.find {
+    position: absolute;
+    left: 30%;
+    top: 10%;
+    width: 800px;
+}
+
+.company-table {
+    position: fixed;
+    left: 15%;
+    top: 50%;
+    width: 1400px;
+    height: 400px;
+}
+
+.el-pagination {
+    position: center;
+}
+
+.show-table {
+    position: fixed;
+    left: 15%;
+    top: 30%;
+    width: 1400px;
+}
+.el-button{
+    right: 20%;
+    bottom: 20%;
+}
+.el-input{
+    width: 300px;
+}

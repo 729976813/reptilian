@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block js %}
+    <script type="text/javascript" src="{{ STATIC_URL }}common/china.js"></script>
+{% endblock %}
+{% block content %}
+    <div id="areamap" style="width: 1700px; height: 900px;"></div>
+    <script>
+        Vue.prototype.$echarts = echarts;
+        new Vue({
+            el: '#areamap',
+            data: function () {
+                return {
+                    mydata: [],
+                }
+            },
+            methods: {
+                fetchAreaData: function () {
+                    const self = this;
+                    axios.get('/area/data5/').then(function (reponse) {
+                        var arr = new Array();
+                        for (let i = 0; i < reponse.data.length; i++) {
+                            arr.push({'name': reponse.data[i]['plate'], 'value': reponse.data[i]['expon']});
+                        }
+                        self.mydata = arr;
+                        let Chart = self.$echarts.init(document.getElementById('areamap'));
+                        Chart.hideLoading();
+                        Chart.setOption({
+                            series: [{
+                                name: '数据',
+                                type: 'map',
+                                mapType: 'china',
+                                roam: true,
+                                label: {
+                                    normal: {
+                                        show: true  //省份名称
+                                    },
+                                    emphasis: {
+                                        show: false
+                                    }
+                                },
+                                data: self.mydata  //数据
+                            }]
+                        })
+                    }).catch(function (err) {
+                        console.log(err);
+                        this.$message.error('操作失败:' + err)
+                    })
+                },
+                createDirgam: function () {
+                    // 基于准备好的dom，初始化echarts实例
+                    let myChart = this.$echarts.init(document.getElementById('areamap'));
+                    // 指定图表的配置项和数据
+                    var option = {
+                        backgroundColor: '#FFFFFF',
+                        title: {
+                            text: '全国地图大数据',
+                            subtext: '',
+                            x: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item'
+                        },
+
+                        //左侧小导航图标
+                        visualMap: {
+                            show: true,
+                            x: 'left',
+                            y: 'center',
+                            splitList: [
+                                {start: 400, end: 500}, {start: 300, end: 400},
+                                {start: 200, end: 300}, {start: 100, end: 200},
+                                {start: 50, end: 100}, {start: 0, end: 50},
+                            ],
+                            color: ['#5475f5', '#9feaa5', '#85daef', '#74e2ca', '#e6ac53', '#9fb5ea']
+                        },
+
+                        //配置属性
+                        series: [{
+                            name: '数据',
+                            type: 'map',
+                            mapType: 'china',
+                            roam: true,
+                            label: {
+                                normal: {
+                                    show: true  //省份名称
+                                },
+                                emphasis: {
+                                    show: false
+                                }
+                            },
+                            data: []  //数据
+                        }]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                    myChart.showLoading();
+                }
+            },
+            created: function () {
+                this.fetchAreaData();
+            },
+            mounted: function () {
+                this.createDirgam();
+            }
+        });
+    </script>
+{% endblock %}

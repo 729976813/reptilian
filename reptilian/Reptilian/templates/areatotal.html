@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+    <div id="area" style="width: 1700px; height: 800px;"></div>
+    <script>
+        Vue.prototype.$echarts = echarts;
+        new Vue({
+            el: '#area',
+            data: function () {
+                return {
+                    area_plate: [],
+                    area_data: [],
+                    area_average: []
+                }
+            },
+            methods: {
+                fetchAreaData: function () {
+                    const self = this;
+                    axios.get('/area/data/').then(function (reponse) {
+                        let arr1 = new Array();
+                        let arr2 = new Array();
+                        let arr3 = new Array();
+                        for (let i = 0; i < reponse.data.length; i++) {
+                            arr1.push(reponse.data[i]['plate']);
+                            arr2.push(reponse.data[i]['volume']);
+                            arr3.push(reponse.data[i]['average']);
+                        }
+                        self.area_plate = arr1;
+                        self.area_data = arr2;
+                        self.area_average = arr3;
+                        let Chart = self.$echarts.init(document.getElementById('area'));
+                        Chart.hideLoading();
+                        Chart.setOption({
+                            xAxis: {
+                                type: 'category',
+                                axisLabel:{
+                                    textStyle:{
+                                        fontSize: 8
+                                    }
+                                },
+                                data: self.area_plate,
+                            },
+                            series: [{
+                                name: '成交量',
+                                type: 'bar',
+                                itemStyle: {
+                                    normal: {
+                                        color: '#4ad2ff'
+                                    }
+                                },
+                                data: self.area_data,
+                            },
+                                {
+                                    name: '均价',
+                                    type: 'line',
+                                    yAxisIndex: 1,
+                                    data: self.area_average,
+                                }]
+                        })
+                    }).catch(function (err) {
+                        console.log(err);
+                        this.$message.error('操作失败:' + err)
+                    })
+                },
+                createDir: function () {
+                    // 基于准备好的dom，初始化echarts实例
+                    let myChart = this.$echarts.init(document.getElementById('area'));
+                    let option = {
+                        title: {
+                            text: '地域数据成交量柱状图'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        legend: {
+                            data: ['成交量', '均价'],
+                        },
+                        xAxis: {
+                            type: 'category',
+                            fontStyle: {
+                                fontSize: 3
+                            },
+                            data: []
+                        },
+                        yAxis: [{
+                            type: 'value',
+                            name: '成交量',
+                            axisLabel: {
+                                formatter: '{value}亿元'
+                            }
+                        },
+                            {
+                                type: 'value',
+                                name: '均价',
+                                axisLabel: {
+                                    formatter: '{value}元'
+                                }
+                            }
+                        ],
+                        series: [{
+                            name: '成交量',
+                            type: 'bar',
+                            itemStyle: {
+                                normal: {
+                                    color: '#4ad2ff'
+                                }
+                            },
+                            data: []
+                        },
+                            {
+                                name: '均价',
+                                type: 'line',
+                                yAxisIndex: 1,
+                                data: []
+                            }]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    myChart.setOption(option);
+                    myChart.showLoading();
+                }
+            },
+            created: function () {
+                this.fetchAreaData();
+            },
+            mounted: function () {
+                this.createDir();
+            }
+        });
+    </script>
+{% endblock %}

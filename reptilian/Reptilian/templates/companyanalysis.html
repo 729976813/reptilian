@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/companyanalysis.css">
+    <link href="https://unpkg.com/vue-json-tree@0.3.3/dist/json-tree.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div id="company-analysis" class="company">
+        {% verbatim company-analysis %}
+            <el-input style="margin-left: 5%; margin-top: 3%" v-model="name" placeholder="请输入公司名称"></el-input>
+            <el-button type="primary" icon="el-icon-search" @click.native="find">搜索</el-button>
+        {% endverbatim company-analysis %}
+    </div>
+    <div id="cake" v-if="company.length>0" style="margin-left:3%; top:80px;width: 800px; height: 600px;"></div>
+    <div id="cake2" class="cake2" v-if="company.length>0"></div>
+    <script>
+        Vue.prototype.$echarts = echarts;
+        new Vue({
+            el: '#company-analysis',
+            data: function () {
+                return {
+                    name: '请输入公司名称',
+                    company: [],
+                    company_mkvalue: [],
+                    content: '',
+                    company_mkshares: []
+                }
+            },
+            methods: {
+                find: function () {
+                    const self = this;
+                    axios.get('/find/data4/', {
+                            params: {
+                                name: self.name.trim()
+                            }
+                        }
+                    ).then(function (reponse) {
+                        let arr1 = new Array();
+                        let arr2 = new Array();
+                        let arr3 = new Array();
+                        for (let i = 0; i < reponse.data.length; i++) {
+                            arr1.push(reponse.data[i]['name']);
+                            arr2.push({
+                                'name': reponse.data[i]['name'],
+                                'value': reponse.data[i]['circulation_mkvalue']
+                            });
+                            arr3.push({
+                                'name': reponse.data[i]['name'],
+                                'value': reponse.data[i]['circulation_shares']
+                            });
+                            self.content = reponse.data[i]['content'];
+                        }
+                        self.company = arr1;
+                        self.company_mkvalue = arr2;
+                        self.company_mkshares = arr3;
+                        self.createDirgam('cake', '公司流通市值比较', self.company_mkvalue, self);
+                        self.createDirgam('cake2', '公司流通股比较', self.company_mkshares, self);
+                    }).catch(function (err) {
+                        console.log(err);
+                        this.$message.error('操作失败:' + err)
+                    })
+                },
+                createDirgam: function (div, explain, data, self) {
+                    var Chart = self.$echarts.init(document.getElementById(div));
+                    var option = {
+                        title: {
+                            text: self.content + explain,
+                            x: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item',
+                            formatter: "{a}<br/>{b}:{c}({d}%)"
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            x: 'left',
+                            data: self.company
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                mark: {show: true},
+                                dataView: {show: true, readOnly: false},
+                                magicType: {
+                                    show: true,
+                                    type: ['pie', 'funnel'],
+                                    option: {
+                                        funnel: {
+                                            x: '25%',
+                                            width: '50%',
+                                            funnelAlign: 'left',
+                                            max: 1548
+                                        }
+                                    }
+                                },
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        calculable: true,
+                        series: [
+                            {
+                                name: '公司',
+                                type: 'pie',
+                                radius: '55%',
+                                center: ['50%', '60%'],
+                                data: data,
+                            }
+                        ]
+                    };
+
+                    // 使用刚指定的配置项和数据显示图表。
+                    Chart.setOption(option);
+                }
+            }
+        })
+    </script>
+{% endblock %}

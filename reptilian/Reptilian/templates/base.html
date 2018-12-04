@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% load  i18n %}
+<html lang="en" xmlns:margin-left="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html">
+    <title>上市公司财务分析系统</title>
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/bootstrap.min.css">
+    <script type="text/javascript" src="{{ STATIC_URL }}common/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/vue.js"></script>
+    <script src="{{ STATIC_URL }}common/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}common/element-ui.css">
+    <script src="{{ STATIC_URL }}common/element-ui.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}common/axios.min.js"></script>
+    <script src="{{ STATIC_URL }}common/echarts.min.js"></script>
+    {% comment %}<script src="http://echarts.baidu.com/dist/echarts.js"/>{% endcomment %}
+    {% block css %}{% endblock %}
+    {% block js %}{% endblock %}
+</head>
+<body>
+<div id="wrapper">
+    {% include 'sidebar.html' %}
+    <div style="min-height: 100%; margin-left:150px">
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+{% block html_extra %}{% endblock %}
+<script>
+    if (location.href != top.location.href) {
+        top.location.href = location.href;
+    }
+</script>
+</body>
+</html>

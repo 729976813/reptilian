@@ -1,0 +1,84 @@
+<div id="sidebar-wrapper"
+     style="width: 150px; position: absolute; height: 100%; min-height: 100%; background: #292c37;">
+    {% verbatim tpl %}
+        <el-menu :default-active="activeMenu" background-color="#1f212a" text-color="#fff"
+                 active-text-color="#35e410" @select="handleClick">
+            <template v-for="menu in menus">
+                <el-submenu :index="menu.link" v-if="menu.submenus">
+                    <template slot="title">
+                        <span>{{ menu.title }}</span>
+                    </template>
+                    <el-menu-item :index="submenu.link" v-for="submenu in menu.submenus"
+                                  style="min-width: 149px; height: 45px; line-height: 45px; padding-left: 15px">
+                        <span v-text="submenu.title"></span>
+                    </el-menu-item>
+                </el-submenu>
+
+                <el-menu-item :index="menu.link" v-else style="height: 45px;line-height: 45px; padding-left:5px">
+                    <span>{{ menu.title }}</span>
+                </el-menu-item>
+            </template>
+        </el-menu>
+    {% endverbatim tpl %}
+</div>
+<script>
+    new Vue({
+        el: '#sidebar-wrapper',
+        data: function () {
+            const menus = [
+                {
+                    title: '地域分析',
+                    link: '/area/',
+                    submenus: [
+                        {title: '整体', link: '/area/total/'},
+                        {title: '中国地图', link: '/area/map'},
+                        {title: '河南', link: '/area/henan/'},
+                        {title: '四川', link: '/area/sichuan/'},
+                    ]
+                },
+                {
+                    title: '行业分析',
+                    link: '/trade/',
+                    submenus: [
+                        {title: '整体', link: '/industry/total2/'},
+                        {title: '计算机应用', link: '/industry/computer/'},
+                        {title: '通信服务', link: '/industry/signal/'},
+                    ]
+                },
+                {
+                    title: '公司查找',
+                    link: '/company/'
+                },
+                {
+                    title: '公司分析',
+                    link: '/analysis/'
+                }
+            ]
+            return {menus: menus};
+        },
+        methods: {
+            handleClick: function (url) {
+                window.location.href = url;
+            }
+        },
+        mounted() {
+            const path = location.pathname + location.search;
+            const menus = this.menus;
+            for (i = 0; i < menus.length; i++) {
+                if (menus[i].submenus) {
+                    const subs = menus[i].submenus;
+                    for (j = 0; j < subs.length; j++) {
+                        if (subs[j].link == path) {
+                            this.activeMenu = path;
+                        }
+                    }
+                } else {
+                    if (menus[i].link == path) {
+                        this.activeMenu = path;
+                    }
+                }
+            }
+        }
+
+    })
+</script>

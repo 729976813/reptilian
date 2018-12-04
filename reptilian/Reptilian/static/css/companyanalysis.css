@@ -1,0 +1,16 @@
+.company {
+    height: 100%;
+    width: 100%;
+}
+
+.el-input {
+    width: 300px;
+}
+
+.cake2 {
+    position: absolute;
+    left: 1000px;
+    top: 20%;
+    width: 800px;
+    height: 600px;
+}

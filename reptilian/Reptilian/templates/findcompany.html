@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block css %}
+    <link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}css/findcompany.css">
+    <link href="https://unpkg.com/vue-json-tree@0.3.3/dist/json-tree.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div id="find-company" class="company">
+        {% verbatim company-find %}
+            <div class="find">
+                <el-input v-model="input_code" placeholder="请输入公司代码" @keyup.enter.native="find"></el-input>
+                <el-input style="margin-left: 10%" v-model="input_name" placeholder="请输入公司名称"
+                          @keyup.enter.native="find"></el-input>
+                <el-button type="primary" icon="el-icon-search" @click.native="find">搜索</el-button>
+            </div>
+            <div class="show-table" v-if="find_data.length>0">
+                <el-table :data="find_data">
+                    <el-table-column prop="code" label="代码" width="200px"></el-table-column>
+                    <el-table-column prop="name" label="名字" width="200px"></el-table-column>
+                    <el-table-column prop="current_price" label="现价" width="200px"></el-table-column>
+                    <el-table-column prop="rise_or_fall" label="涨跌幅" width="200px"></el-table-column>
+                    <el-table-column prop="turn_volume" label="成交额" width="200px"></el-table-column>
+                    <el-table-column prop="circulation_shares" label="流通股" width="200px"></el-table-column>
+                    <el-table-column prop="circulation_mkvalue" label="流通市值" width="200px"></el-table-column>
+                </el-table>
+            </div>
+        {% endverbatim company-find %}
+        <div id="company-info" class="company-table">
+            {% verbatim company-info %}
+                <el-table :data="total_company.slice((currentPage-1)*pagesize,currentPage*pagesize)" border
+                          style="width: 100%">
+                    <el-table-column prop="code" label="代码" width="200px"></el-table-column>
+                    <el-table-column prop="name" label="名字" width="200px"></el-table-column>
+                    <el-table-column prop="current_price" label="现价" width="200px"></el-table-column>
+                    <el-table-column prop="rise_or_fall" label="涨跌幅" width="200px"></el-table-column>
+                    <el-table-column prop="turn_volume" label="成交额" width="200px"></el-table-column>
+                    <el-table-column prop="circulation_shares" label="流通股" width="200px"></el-table-column>
+                    <el-table-column prop="circulation_mkvalue" label="流通市值" width="200px"></el-table-column>
+                </el-table>
+                <el-pagination style="height: 50px " background layout="prev, pager, next,total,sizes"
+                               :total=total_size
+                               :page-sizes="[5,10]" :page-size="pagesize" :current-page="currentPage"
+                               @size-change="changeSize" @current-change="changePage"></el-pagination>
+            {% endverbatim company-info %}
+        </div>
+    </div>
+    <script>
+        new Vue({
+            el: '#find-company',
+            data: function () {
+                return {
+                    input_name: '请输入想要查找的公司名字',
+                    input_code: '请输入想要查找的公司代码',
+                    total_size: 0,
+                    total_company: [],
+                    pagesize: 5,
+                    currentPage: 1,
+                    find_data: []
+                }
+            },
+            methods: {
+                find: function () {
+                    const self = this;
+                    if (self.input_code.trim().length <= 0 && self.input_name.trim().length <= 0) {
+                        self.$message.error({message: '两者不能都为空'})
+                    } else {
+                        axios.get('/company/find',
+                            {
+                                params: {
+                                    name: self.input_name.trim(),
+                                    code: self.input_code.trim()
+                                }
+                            }).then(function (response) {
+                            if (response.data.status == 'error') {
+                                self.$message.error({message: '错误'})
+                            }
+                            if (response.data.length == 0) {
+                                self.$message.error({message: '没有查到该公司'})
+                            } else {
+                                self.find_data = response.data;
+                            }
+                        }).catch(function (err) {
+                            console.log(err);
+                            this.$message.error('操作失败:' + err)
+                        })
+                    }
+                },
+                fetchCompanyData: function () {
+                    const self = this;
+                    axios.get('/company/create').then(function (response) {
+                        if (response.data.status == 'error') {
+                            self.$message.error({message: '错误'})
+                        }
+                        self.total_company = response.data;
+                        self.total_size = response.data.length;
+                    }).catch(function (err) {
+                        console.log(err);
+                        this.$message.error('操作失败:' + err)
+                    });
+                },
+                changeSize: function (val) {
+                    this.pagesize = val;
+                },
+                changePage: function (val) {
+                    this.currentPage = val;
+                }
+            },
+            created: function () {
+                this.fetchCompanyData();
+            },
+        });
+        String.prototype.trim = function () {
+            return this.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, '$1');
+        }
+    </script>
+{% endblock %}
