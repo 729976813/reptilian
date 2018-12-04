@@ -18,6 +18,8 @@ from django.conf.urls import include, url
 from django.views.generic import TemplateView
 from reptilian.Reptilian.get_information import views
 
+
+
 urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='findcompany.html'), name='find'),
     url(r'^find/', views.CompanyView.as_view(), name='company'),
